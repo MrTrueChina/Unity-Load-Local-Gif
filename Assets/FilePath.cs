@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// 获取相对路径的静态类
+/// </summary>
 public static class FilePath
 {
     static string _exePath;
