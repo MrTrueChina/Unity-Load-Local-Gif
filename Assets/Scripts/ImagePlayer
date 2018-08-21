@@ -14,6 +14,7 @@ public struct GifFrame
     public float delay;
 }
 
+
 /// <summary>
 /// gif数据，所有的图像和延迟时间
 /// </summary>
@@ -21,6 +22,7 @@ public struct GifData
 {
     public GifFrame[] frames;
 }
+
 
 /// <summary>
 /// 播放gif的组件，需要挂载的物体有Image组件，也可以存入单图
@@ -34,6 +36,7 @@ public class ImagePlayer : MonoBehaviour
     float _playTime;
 
 
+    //存入数据
     public void SetImage(GifData gif)
     {
         if (gif.frames == null || gif.frames.Length == 0 || gif.frames[0].sprite == null)
@@ -100,7 +103,7 @@ public class ImagePlayer : MonoBehaviour
 
 
 
-
+    //播放暂停等功能
     public void PlayFromBeginning()
     {
         ToBeginning();
@@ -139,7 +142,7 @@ public class ImagePlayer : MonoBehaviour
 
 
 
-
+    //初始化和更新图片
     private void Awake()
     {
         _imageComponent = GetComponent<Image>();
