@@ -18,7 +18,7 @@ public static class LoadLocalImage
     }
 
 
-    //png
+    //png   读取png的初版代码不知道扔哪了，只剩这个没多少注释的了，看到不认识的就百度，问题应该不大
     static GifData LoadPng(string fullName)
     {
         return new GifData() { frames = new GifFrame[] { new GifFrame { sprite = GetFileSprite(fullName), delay = 0 } } };
@@ -32,11 +32,11 @@ public static class LoadLocalImage
     {
         using (FileStream fileStream = new FileStream(fullName, FileMode.Open, FileAccess.Read))  //路径，打开，只读
         {
-            fileStream.Seek(0, SeekOrigin.Begin);           //设置光标位置（读取位置）， Seek(偏移量, 起始点)
+            fileStream.Seek(0, SeekOrigin.Begin);                           //设置光标位置（读取位置）， Seek(偏移量, 起始点)
 
-            byte[] bytes = new byte[fileStream.Length];         //按照读取文件的长度创建缓冲区
+            byte[] bytes = new byte[fileStream.Length];                     //按照读取文件的长度创建缓冲区
 
-            fileStream.Read(bytes, 0, Convert.ToInt32(fileStream.Length)); //把文件读进缓冲区里     Read(byte[] 读进去的缓冲区, int 偏转量, int 长度)   FileStream.Length 是 long，用Convert.ToInt32()正好能转成int32，Convert在System命名空间里
+            fileStream.Read(bytes, 0, Convert.ToInt32(fileStream.Length));  //把文件读进缓冲区里     Read(byte[] 读进去的缓冲区, int 偏转量, int 长度)   FileStream.Length 是 long，用Convert.ToInt32()正好能转成int32，Convert在System命名空间里
 
             return bytes;
         }
@@ -44,10 +44,10 @@ public static class LoadLocalImage
 
 
 
-    //gif
+    //gif   初版gif也找不到在哪了...
     static GifData LoadGif(string fullName)
     {
-        Image gifImage = Image.FromFile(fullName);
+        Image gifImage = Image.FromFile(fullName);      //从文件读取出 Image对象，注意这个Image不是 UnityEngine.UI.Image，是 System.Drawing.Imaging.Image
 
         if (gifImage == null) return new GifData();
 
@@ -55,8 +55,8 @@ public static class LoadLocalImage
 
         List<GifFrame> gifData = new List<GifFrame>();
 
-        FrameDimension dimension = new FrameDimension(gifImage.FrameDimensionsList[0]);
-        int framesCount = gifImage.GetFrameCount(dimension);
+        FrameDimension dimension = new FrameDimension(gifImage.FrameDimensionsList[0]); //根据gif的第一个尺寸创建尺寸
+        int framesCount = gifImage.GetFrameCount(dimension);                            //获取gif里这个尺寸的帧的总数
         for (int i = 0; i < framesCount; i++)
             gifData.Add(GetAFrameData(gifImage, dimension, i));
 
@@ -125,7 +125,7 @@ public static class LoadLocalImage
     {
         byte[] delayArray = new byte[4];
         //用byte是因为从 PropertyItem 里获取到的值就是byte
-        //关于这个4，首先这次用到的属性是帧延迟，这个属性的值是一个数组，长度是【gif帧数的 4 倍】，之所以是4倍，是因为一个byte范围是 0-255，如果某一帧时长超过2.55秒就会出错，用4个byte可以达到32位，可以应对大部分gif
+        //关于这个4，首先这次用到的属性是帧延迟，这个属性的值是一个数组，长度是【gif帧数的 4 倍】，之所以是4倍，是因为一个byte范围是 0-255，如果某一帧时长超过2.55秒就会出错，用4个byte可以达到32位，可以应对绝大部分gif
 
         delayArray[0] = property.Value[frameIndex * 4];         //获取这一帧的延迟时间的第一个byte，对应int32的第1-8位    PropertyItem.Value：属性的值的数组
         delayArray[1] = property.Value[frameIndex * 4 + 1];     //第二个byte，对应int32的9-16位
@@ -137,7 +137,16 @@ public static class LoadLocalImage
 
         return delay / 100f;    //转化成以秒为单位，返回
     }
-    
+    /*
+     * 如果想要了解4个byte的实用表现可以尝试加载附带的 第一帧12345毫秒，第二帧1000毫秒.gif
+     * 
+     * 这个gif第一帧的帧延迟分别是   210      4        0        0
+     * 按照二进制是                 11010010 00000100 00000000 00000000
+     * 按照从低位到高位排列是        00000000 00000000 00000100 11010010
+     * 
+     * 转换为十进制是 1234，即以百分之一秒为单位的帧间隔
+     */
+
 
 
     //扩展方法
