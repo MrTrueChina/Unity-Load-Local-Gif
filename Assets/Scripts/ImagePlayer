@@ -15,19 +15,22 @@ public struct GifFrame
 }
 
 /// <summary>
-/// gif数据，所有的帧
+/// gif数据，所有的图像和延迟时间
 /// </summary>
 public struct GifData
 {
     public GifFrame[] frames;
 }
 
+/// <summary>
+/// 播放gif的组件，需要挂载的物体有Image组件，也可以存入单图
+/// </summary>
 [RequireComponent(typeof(Image))]
 public class ImagePlayer : MonoBehaviour
 {
     Image _imageComponent;
     GifData _gifData;
-    float[] _nextFrameTime;
+    float[] _nextFrameTime;             //每次改变图像的时间，根据这些时间和播放时间可以确认应该显示的帧
     float _playTime;
 
 
@@ -52,7 +55,7 @@ public class ImagePlayer : MonoBehaviour
                 new GifFrame            //给这个 GifFrame数组 创建一个 GifFrame对象
                 {
                     sprite = sprite,    //把参数 Sprite 赋给这个 GifFrame对象 的 sprite 属性
-                    delay = 0           //间隔写0就行
+                    delay = 0           //间隔写0就行，单图用不到这个属性
                 }
             }
         };
@@ -79,8 +82,7 @@ public class ImagePlayer : MonoBehaviour
 
         ComputeNextFrameTimeArray(gif);
 
-        ToBegin();
-        Play();
+        PlayFromBeginning();
     }
     void ComputeNextFrameTimeArray(GifData gif)
     {
@@ -99,7 +101,13 @@ public class ImagePlayer : MonoBehaviour
 
 
 
-    public void Play()         //这个方法有缺陷：如果在运行期间播放基本确定不会从第一帧开始播放，需要加一个偏转值
+    public void PlayFromBeginning()
+    {
+        ToBeginning();
+        Play();
+    }
+
+    public void Play()
     {
         enabled = true;
     }
@@ -113,17 +121,17 @@ public class ImagePlayer : MonoBehaviour
     {
         enabled = false;
 
-        ToBegin();
+        ToBeginning();
     }
 
     public void CleanData()
     {
         _gifData.frames = null;
         _nextFrameTime = null;
-        ToBegin();
+        ToBeginning();
     }
 
-    void ToBegin()
+    void ToBeginning()
     {
         _playTime = 0;
     }
@@ -141,7 +149,6 @@ public class ImagePlayer : MonoBehaviour
 
     private void Update()
     {
-        //Debug.Log("15.2 % 2.5 = " + (15.2 % 2.5));    //输出是 0.5，这一步可以看出C#的取余规则不要求必须整数，取余只取到不能整除的部分
         _playTime += Time.deltaTime;
         UpdateGifFrame();
     }
@@ -152,7 +159,7 @@ public class ImagePlayer : MonoBehaviour
     }
     Sprite GetCurrentSprite()
     {
-        float frameTime = (_playTime) % _nextFrameTime.Last();   //下一帧时间的最后一个数就是全部播放完的时间      偏转时间的加减号还需要研究
+        float frameTime = (_playTime) % _nextFrameTime.Last();   //下一帧时间的最后一个数就是全部播放完的时间
 
         int framesCount = _gifData.frames.Length;
         for (int i = 0; i < framesCount; i++)
