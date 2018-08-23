@@ -1,4 +1,3 @@
-```C#
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
@@ -197,4 +196,3 @@ public class ImagePlayer : MonoBehaviour
         return _gifData.frames[0].sprite;       //一般来说应该到不了这，但如果真的到了，应该是时间超过最后一帧了，返回第一帧
     }
 }
-```
