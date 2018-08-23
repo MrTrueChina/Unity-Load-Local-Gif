@@ -1,3 +1,4 @@
+```
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
@@ -34,6 +35,12 @@ public class ImagePlayer : MonoBehaviour
     GifData _gifData;
     float[] _nextFrameTime;             //每次改变图像的时间，根据这些时间和播放时间可以确认应该显示的帧
     float _playTime;
+
+    [SerializeField]
+    [Range(0,1)]
+    float _fixedHeight;         //存入图片时Image组件宽高以高为准变化的权重，0的话是以宽为准，1的话是以高为准，在中间的用插值
+    float _originalWidth;
+    float _originalHeight;
 
 
     //存入数据
@@ -76,12 +83,16 @@ public class ImagePlayer : MonoBehaviour
     {
         _imageComponent.sprite = gif.frames[0].sprite;
 
+        AdjustmentHeightAndWidth(gif);
+
         Stop();
     }
 
     void MultipleFrames(GifData gif)
     {
         _gifData = gif;
+
+        AdjustmentHeightAndWidth(gif);
 
         ComputeNextFrameTimeArray(gif);
 
@@ -98,6 +109,17 @@ public class ImagePlayer : MonoBehaviour
             nextFrameTime += gif.frames[i].delay;
             _nextFrameTime[i] = nextFrameTime;
         }
+    }
+
+    void AdjustmentHeightAndWidth(GifData gif)
+    {
+        float gifWidth = gif.frames[0].sprite.texture.width;
+        float gifHeight = gif.frames[0].sprite.texture.height;
+
+        float newWidth = gifWidth * (_originalHeight / gifHeight);
+        float newHeight = gifHeight * (_originalWidth / gifWidth);
+
+        _rectTransform.sizeDelta = Vector2.Lerp(new Vector2(_originalWidth, newHeight), new Vector2(newWidth, _originalHeight), _fixedHeight);
     }
 
 
@@ -147,6 +169,9 @@ public class ImagePlayer : MonoBehaviour
     {
         _imageComponent = GetComponent<Image>();
 
+        _originalWidth = _rectTransform.sizeDelta.x;
+        _originalHeight = _rectTransform.sizeDelta.y;
+
         Stop();     //刚开始是没有数据的，自动Stop
     }
 
@@ -172,3 +197,4 @@ public class ImagePlayer : MonoBehaviour
         return _gifData.frames[0].sprite;       //一般来说应该到不了这，但如果真的到了，应该是时间超过最后一帧了，返回第一帧
     }
 }
+```
