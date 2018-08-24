@@ -67,7 +67,7 @@ public class ImagePlayer : MonoBehaviour
                 new GifFrame            //给这个 GifFrame数组 创建一个 GifFrame对象
                 {
                     sprite = sprite,    //把参数 Sprite 赋给这个 GifFrame对象 的 sprite 属性
-                    delay = 0           //间隔写0就行
+                    delay = 0           //间隔写0就行，单图用不到这个属性
                 }
             }
         };
