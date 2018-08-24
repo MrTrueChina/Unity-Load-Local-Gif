@@ -11,7 +11,7 @@ public static class LoadLocalImage
     {
         if (fullName.Contains(".gif"))
             return LoadGif(fullName);
-        else if(fullName.Contains(".png"))
+        else if(fullName.Contains(".png") || fullName.Contains(".jpg"))     //png和jpg似乎能共用一个方法
             return LoadPng(fullName);
 
         return new GifData();
